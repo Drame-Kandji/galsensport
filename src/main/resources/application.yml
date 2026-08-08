@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: galsensport-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/galsensport
+    username: postgres
+    password: postgres
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+
+
+server:
+  port: 8080
+
+
+jwt:
+  secret: galsensport-secret-key-development-2026
+  expiration: 86400000
