@@ -1,8 +1,7 @@
 package com.example.backend.security;
 
 import com.example.backend.entity.User;
-import com.example.backend.service.JwtService;
-import com.example.backend.service.UserService;
+import com.example.backend.service.user.UserService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

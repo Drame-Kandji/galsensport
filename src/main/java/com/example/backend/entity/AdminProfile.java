@@ -10,7 +10,11 @@ public class AdminProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(optional = false)
+    private String nom;
+
+    private String prenom;
+
+    @OneToOne
     @JoinColumn(
             name = "user_id",
             nullable = false,
@@ -18,35 +22,21 @@ public class AdminProfile {
     )
     private User user;
 
-    @Column(nullable = false)
-    private String nom;
-
-    @Column(nullable = false)
-    private String prenom;
-
     public AdminProfile() {
     }
 
     public AdminProfile(
-            User user,
             String nom,
-            String prenom
+            String prenom,
+            User user
     ) {
-        this.user = user;
         this.nom = nom;
         this.prenom = prenom;
+        this.user = user;
     }
 
     public Long getId() {
         return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public String getNom() {
@@ -63,5 +53,13 @@ public class AdminProfile {
 
     public void setPrenom(String prenom) {
         this.prenom = prenom;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

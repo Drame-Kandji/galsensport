@@ -10,14 +10,6 @@ public class Entreprise {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(optional = false)
-    @JoinColumn(
-            name = "user_id",
-            nullable = false,
-            unique = true
-    )
-    private User user;
-
     @Column(nullable = false, length = 150)
     private String nomEntreprise;
 
@@ -27,31 +19,31 @@ public class Entreprise {
     @Column(length = 1000)
     private String description;
 
+    @OneToOne
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            unique = true
+    )
+    private User user;
+
     public Entreprise() {
     }
 
     public Entreprise(
-            User user,
             String nomEntreprise,
             String adresse,
-            String description
+            String description,
+            User user
     ) {
-        this.user = user;
         this.nomEntreprise = nomEntreprise;
         this.adresse = adresse;
         this.description = description;
+        this.user = user;
     }
 
     public Long getId() {
         return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public String getNomEntreprise() {
@@ -76,5 +68,13 @@ public class Entreprise {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

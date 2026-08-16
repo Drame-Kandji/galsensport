@@ -1,0 +1,107 @@
+package com.example.backend.dto.post;
+
+import com.example.backend.entity.Role;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public class PostResponse {
+
+    private Long id;
+
+    private String contenu;
+
+    private Long auteurId;
+
+    private String auteurEmail;
+
+    private String auteurTelephone;
+
+    private Role auteurRole;
+
+    private List<PostMediaResponse> medias;
+
+    private long likesCount;
+
+    private boolean likedByMe;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
+
+    public PostResponse() {
+    }
+
+
+    public PostResponse(
+            Long id,
+            String contenu,
+            Long auteurId,
+            String auteurEmail,
+            String auteurTelephone,
+            Role auteurRole,
+            List<PostMediaResponse> medias,
+            long likesCount,
+            boolean likedByMe,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt
+    ) {
+        this.id = id;
+        this.contenu = contenu;
+        this.auteurId = auteurId;
+        this.auteurEmail = auteurEmail;
+        this.auteurTelephone = auteurTelephone;
+        this.auteurRole = auteurRole;
+        this.medias = medias;
+        this.likesCount = likesCount;
+        this.likedByMe = likedByMe;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getContenu() {
+        return contenu;
+    }
+
+    public Long getAuteurId() {
+        return auteurId;
+    }
+
+    public String getAuteurEmail() {
+        return auteurEmail;
+    }
+
+    public String getAuteurTelephone() {
+        return auteurTelephone;
+    }
+
+    public Role getAuteurRole() {
+        return auteurRole;
+    }
+
+    public List<PostMediaResponse> getMedias() {
+        return medias;
+    }
+
+    public long getLikesCount() {
+        return likesCount;
+    }
+
+    public boolean isLikedByMe() {
+        return likedByMe;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+}
