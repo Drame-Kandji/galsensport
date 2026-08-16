@@ -1,13 +1,13 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/galsensport_test
+    url: jdbc:postgresql://localhost:5432/galsensport
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
 
   flyway:
-    enabled: false
+    enabled: true

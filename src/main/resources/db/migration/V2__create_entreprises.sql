@@ -9,7 +9,7 @@ CREATE TABLE entreprises (
 
                              description TEXT,
 
-                             user_id BIGINT UNIQUE NOT NULL,
+                             user_id BIGINT NOT NULL UNIQUE,
 
                              CONSTRAINT fk_entreprise_user
                                  FOREIGN KEY (user_id)

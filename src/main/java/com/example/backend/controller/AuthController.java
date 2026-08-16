@@ -1,13 +1,10 @@
 package com.example.backend.controller;
 
-
-import com.example.backend.dto.auth.AuthResponse;
-import com.example.backend.dto.auth.LoginRequest;
-import com.example.backend.dto.auth.RegisterRequest;
+import com.example.backend.dto.auth.*;
 import com.example.backend.entity.User;
 import com.example.backend.mapper.UserMapper;
-import com.example.backend.service.JwtService;
-import com.example.backend.service.UserService;
+import com.example.backend.service.jwt.JwtService;
+import com.example.backend.service.user.UserService;
 
 import jakarta.validation.Valid;
 
@@ -15,20 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
-
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-
-
     private final UserService userService;
-
     private final UserMapper userMapper;
-
     private final JwtService jwtService;
-
 
     public AuthController(
             UserService userService,
@@ -40,41 +30,72 @@ public class AuthController {
         this.jwtService = jwtService;
     }
 
-
-
+    // =========================================================
+    // INSCRIPTION USER
+    // =========================================================
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(
-            @Valid @RequestBody RegisterRequest request
-    ){
+            @Valid @RequestBody RegisterUserRequest request
+    ) {
 
+        User user =
+                userService.createUser(request);
 
-        User user = userMapper.toUser(request);
-
-
-        User savedUser = userService.createUser(user);
-
+        String token =
+                jwtService.generateToken(user);
 
         AuthResponse response =
                 userMapper.toAuthResponse(
-                        savedUser,
-                        null
+                        user,
+                        token
                 );
 
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
+    // =========================================================
+    // INSCRIPTION ENTREPRISE
+    // =========================================================
+
+    @PostMapping("/register/company")
+    public ResponseEntity<AuthResponse> registerCompany(
+            @Valid @RequestBody RegisterCompanyRequest request
+    ) {
+
+        User user =
+                userService.createCompany(request);
+
+        String token =
+                jwtService.generateToken(user);
+
+        AuthResponse response =
+                userMapper.toAuthResponse(
+                        user,
+                        token
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
+    }
+
+    // =========================================================
+    // CONNEXION
+    // =========================================================
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
             @Valid @RequestBody LoginRequest request
     ) {
 
-        User user = userService.login(
-                request.getLogin(),
-                request.getPassword()
-        );
+        User user =
+                userService.login(
+                        request.getLogin(),
+                        request.getPassword()
+                );
 
         String token =
                 jwtService.generateToken(user);
@@ -87,5 +108,4 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
-
 }

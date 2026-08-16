@@ -2,15 +2,16 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.entreprise.EntrepriseRequest;
 import com.example.backend.dto.entreprise.EntrepriseResponse;
-import com.example.backend.service.EntrepriseService;
+import com.example.backend.entity.User;
+import com.example.backend.service.entreprise.EntrepriseService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import jakarta.validation.Valid;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -30,26 +31,28 @@ public class EntrepriseController {
     }
 
     /**
-     * Créer une entreprise
+     * Voir sa propre entreprise.
      *
-     * ENTREPRISE ou ADMIN.
+     * ENTREPRISE uniquement.
      */
-    @PostMapping
-    @PreAuthorize("hasAnyRole('ENTREPRISE', 'ADMIN')")
-    public ResponseEntity<EntrepriseResponse> create(
-            @Valid @RequestBody EntrepriseRequest request
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('ENTREPRISE')")
+    public ResponseEntity<EntrepriseResponse> me(
+            Authentication authentication
     ) {
 
-        EntrepriseResponse response =
-                entrepriseService.create(request);
+        User user =
+                (User) authentication.getPrincipal();
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+        return ResponseEntity.ok(
+                entrepriseService.findMyEntreprise(
+                        user.getId()
+                )
+        );
     }
 
     /**
-     * Consulter une entreprise.
+     * Voir une entreprise.
      *
      * USER, ENTREPRISE et ADMIN.
      */
@@ -65,7 +68,7 @@ public class EntrepriseController {
     }
 
     /**
-     * Lister les entreprises.
+     * Lister toutes les entreprises.
      *
      * USER, ENTREPRISE et ADMIN.
      */
@@ -78,20 +81,37 @@ public class EntrepriseController {
         );
     }
 
+
+
     /**
      * Modifier une entreprise.
      *
-     * ENTREPRISE ou ADMIN.
+     * ENTREPRISE : uniquement sa propre entreprise.
+     * ADMIN : n'importe quelle entreprise.
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ENTREPRISE', 'ADMIN')")
+    @PreAuthorize(
+            "hasRole('ADMIN') or hasRole('ENTREPRISE')"
+    )
     public ResponseEntity<EntrepriseResponse> update(
             @PathVariable Long id,
-            @Valid @RequestBody EntrepriseRequest request
+            @Valid @RequestBody EntrepriseRequest request,
+            Authentication authentication
     ) {
 
+        User user =
+                (User) authentication.getPrincipal();
+
+        boolean isAdmin =
+                user.getRole().name().equals("ADMIN");
+
         return ResponseEntity.ok(
-                entrepriseService.update(id, request)
+                entrepriseService.update(
+                        id,
+                        request,
+                        user.getId(),
+                        isAdmin
+                )
         );
     }
 

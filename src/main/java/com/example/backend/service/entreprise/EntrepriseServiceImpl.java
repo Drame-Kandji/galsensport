@@ -1,9 +1,11 @@
-package com.example.backend.service;
+package com.example.backend.service.entreprise;
 
 import com.example.backend.dto.entreprise.EntrepriseRequest;
 import com.example.backend.dto.entreprise.EntrepriseResponse;
 import com.example.backend.entity.Entreprise;
 import com.example.backend.repository.EntrepriseRepository;
+import com.example.backend.exception.ForbiddenException;
+import com.example.backend.exception.ResourceNotFoundException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,42 +25,13 @@ public class EntrepriseServiceImpl implements EntrepriseService {
     }
 
     @Override
-    public EntrepriseResponse create(
-            EntrepriseRequest request
-    ) {
-
-        Entreprise entreprise = new Entreprise();
-
-        entreprise.setNomEntreprise(
-                request.getNomEntreprise()
-        );
-
-        entreprise.setAdresse(
-                request.getAdresse()
-        );
-
-        entreprise.setTelephone(
-                request.getTelephone()
-        );
-
-        entreprise.setDescription(
-                request.getDescription()
-        );
-
-        Entreprise saved =
-                entrepriseRepository.save(entreprise);
-
-        return toResponse(saved);
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public EntrepriseResponse findById(Long id) {
 
         Entreprise entreprise =
                 entrepriseRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new ResourceNotFoundException(
                                         "Entreprise introuvable"
                                 )
                         );
@@ -77,19 +50,49 @@ public class EntrepriseServiceImpl implements EntrepriseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public EntrepriseResponse findMyEntreprise(Long userId) {
+
+        Entreprise entreprise =
+                entrepriseRepository.findByUserId(userId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Entreprise introuvable"
+                                )
+                        );
+
+        return toResponse(entreprise);
+    }
+
+    @Override
     public EntrepriseResponse update(
             Long id,
-            EntrepriseRequest request
+            EntrepriseRequest request,
+            Long currentUserId,
+            boolean isAdmin
     ) {
 
         Entreprise entreprise =
                 entrepriseRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new ResourceNotFoundException(
                                         "Entreprise introuvable"
                                 )
                         );
 
+        /*
+         * Un ADMIN peut modifier n'importe quelle entreprise.
+         *
+         * Une ENTREPRISE ne peut modifier
+         * que sa propre entreprise.
+         */
+        if (!isAdmin &&
+                !entreprise.getUser().getId().equals(currentUserId)) {
+
+            throw new ForbiddenException(
+                    "Vous ne pouvez modifier que votre propre entreprise"
+            );
+        }
         entreprise.setNomEntreprise(
                 request.getNomEntreprise()
         );
@@ -98,9 +101,7 @@ public class EntrepriseServiceImpl implements EntrepriseService {
                 request.getAdresse()
         );
 
-        entreprise.setTelephone(
-                request.getTelephone()
-        );
+
 
         entreprise.setDescription(
                 request.getDescription()
@@ -113,7 +114,8 @@ public class EntrepriseServiceImpl implements EntrepriseService {
     public void delete(Long id) {
 
         if (!entrepriseRepository.existsById(id)) {
-            throw new RuntimeException(
+
+            throw new ResourceNotFoundException(
                     "Entreprise introuvable"
             );
         }
@@ -127,9 +129,17 @@ public class EntrepriseServiceImpl implements EntrepriseService {
 
         return new EntrepriseResponse(
                 entreprise.getId(),
+
+                entreprise.getUser().getEmail(),
+
+                entreprise.getUser().getTelephone(),
+
+                entreprise.getUser().getRole(),
+
                 entreprise.getNomEntreprise(),
+
                 entreprise.getAdresse(),
-                entreprise.getTelephone(),
+
                 entreprise.getDescription()
         );
     }

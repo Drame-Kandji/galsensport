@@ -27,13 +27,29 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
+                // =====================================================
+                // CSRF
+                // =====================================================
+
                 .csrf(csrf -> csrf.disable())
+
+                // =====================================================
+                // AUTHENTIFICATION PAR FORMULAIRE / BASIC
+                // =====================================================
 
                 .formLogin(form -> form.disable())
 
                 .httpBasic(basic -> basic.disable())
 
+                // =====================================================
+                // AUTORISATION
+                // =====================================================
+
                 .authorizeHttpRequests(auth -> auth
+
+                        // -------------------------------------------------
+                        // SWAGGER
+                        // -------------------------------------------------
 
                         .requestMatchers(
                                 "/swagger-ui/**",
@@ -41,12 +57,50 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
 
+                        // -------------------------------------------------
+                        // AUTHENTIFICATION PUBLIQUE
+                        // -------------------------------------------------
+
                         .requestMatchers(
-                                "/api/v1/auth/**"
+                                "/api/v1/auth/register",
+                                "/api/v1/auth/register/company",
+                                "/api/v1/auth/login"
                         ).permitAll()
+
+                        // -------------------------------------------------
+                        // PROFIL USER
+                        // -------------------------------------------------
+
+                        .requestMatchers(
+                                "/api/v1/users/me"
+                        ).hasRole("USER")
+
+                        // -------------------------------------------------
+                        // PROFIL ENTREPRISE
+                        // -------------------------------------------------
+
+                        .requestMatchers(
+                                "/api/v1/entreprises/me"
+                        ).hasRole("ENTREPRISE")
+
+                        // -------------------------------------------------
+                        // PROFIL ADMIN
+                        // -------------------------------------------------
+
+                        .requestMatchers(
+                                "/api/v1/admin/profile/**"
+                        ).hasRole("ADMIN")
+
+                        // -------------------------------------------------
+                        // TOUT LE RESTE
+                        // -------------------------------------------------
 
                         .anyRequest().authenticated()
                 )
+
+                // =====================================================
+                // JWT FILTER
+                // =====================================================
 
                 .addFilterBefore(
                         jwtAuthenticationFilter,
