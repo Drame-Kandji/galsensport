@@ -6,6 +6,8 @@ import com.example.backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface FollowRepository
         extends JpaRepository<Follow, Long> {
@@ -31,4 +33,6 @@ public interface FollowRepository
     List<Follow> findByFollowerOrderByCreatedAtDesc(
             User follower
     );
+    Page<Follow> findByFollowingOrderByCreatedAtDesc(User following, Pageable pageable);
+    Page<Follow> findByFollowerOrderByCreatedAtDesc(User follower, Pageable pageable);
 }

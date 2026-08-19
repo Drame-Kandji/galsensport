@@ -19,6 +19,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.example.backend.dto.common.PagedResponse;
+import org.springframework.data.domain.PageRequest;
+import com.example.backend.repository.FollowRepository;
+import com.example.backend.repository.UserRepository;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -30,11 +34,30 @@ import java.util.List;
 public class FollowController {
 
     private final FollowService followService;
+    private final FollowRepository followRepository;
+    private final UserRepository userRepository;
 
     public FollowController(
-            FollowService followService
+            FollowService followService, FollowRepository followRepository, UserRepository userRepository
     ) {
         this.followService = followService;
+        this.followRepository = followRepository;
+        this.userRepository = userRepository;
+    }
+
+    @GetMapping("/me/suggestions")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<PagedResponse<UserResponse>> suggestions(Authentication authentication, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+        User current = (User) authentication.getPrincipal();
+        var all = followRepository.findByFollowerOrderByCreatedAtDesc(current).stream().map(f -> f.getFollowing().getId()).collect(java.util.stream.Collectors.toSet());
+        all.add(current.getId());
+        var candidates = userRepository.findTop50ByIdNotOrderByIdDesc(current.getId()).stream()
+                .filter(candidate -> !all.contains(candidate.getId()))
+                .skip((long) Math.max(0, page) * Math.min(Math.max(1, size), 50))
+                .limit(Math.min(Math.max(1, size), 50))
+                .map(candidate -> new UserResponse(candidate.getId(), candidate.getEmail(), candidate.getTelephone(), candidate.getRole(), null, null))
+                .toList();
+        return ResponseEntity.ok(new PagedResponse<>(candidates, page, size, candidates.size(), candidates.isEmpty() ? 0 : page + 1, page == 0, candidates.size() < size));
     }
 
     // =========================================================

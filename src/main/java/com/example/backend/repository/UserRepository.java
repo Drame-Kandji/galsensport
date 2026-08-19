@@ -17,4 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByTelephone(String telephone);
 
     List<User> findTop10ByEmailContainingIgnoreCaseOrTelephoneContaining(String email, String telephone);
+
+    List<User> findTop50ByIdNotOrderByIdDesc(Long id);
 }
