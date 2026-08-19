@@ -41,6 +41,10 @@ security:
   account-token-expiration: ${ACCOUNT_TOKEN_EXPIRATION:3600000}
 
 app:
+  seed-admins:
+    enabled: ${SEED_ADMINS_ENABLED:true}
+    primary-password: ${SEED_ADMIN_PRIMARY_PASSWORD:Admin@12345}
+    secondary-password: ${SEED_ADMIN_SECONDARY_PASSWORD:Admin@12345}
   frontend-url: ${FRONTEND_URL:http://localhost:4200}
 
 media:
