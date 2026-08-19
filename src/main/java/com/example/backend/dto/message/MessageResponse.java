@@ -1,0 +1,2 @@
+package com.example.backend.dto.message; import com.example.backend.entity.Message; import java.time.LocalDateTime;
+public record MessageResponse(Long id,Long conversationId,Long senderId,String content,LocalDateTime readAt,LocalDateTime createdAt){public static MessageResponse from(Message m){return new MessageResponse(m.getId(),m.getConversation().getId(),m.getSender().getId(),m.getContent(),m.getReadAt(),m.getCreatedAt());}}

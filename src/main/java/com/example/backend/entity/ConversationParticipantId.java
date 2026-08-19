@@ -1,0 +1,2 @@
+package com.example.backend.entity; import java.io.Serializable; import java.util.Objects;
+public class ConversationParticipantId implements Serializable { private Long conversation; private Long user; public ConversationParticipantId(){} public boolean equals(Object o){if(this==o)return true;if(!(o instanceof ConversationParticipantId x))return false;return Objects.equals(conversation,x.conversation)&&Objects.equals(user,x.user);} public int hashCode(){return Objects.hash(conversation,user);} }
