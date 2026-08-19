@@ -3,16 +3,20 @@ package com.example.backend.service.post;
 import com.example.backend.dto.post.PostRequest;
 import com.example.backend.dto.post.PostResponse;
 import com.example.backend.dto.post.PostMediaResponse;
-import com.example.backend.entity.MediaType;
+
 import com.example.backend.entity.Post;
 import com.example.backend.entity.PostMedia;
+import com.example.backend.entity.Role;
 import com.example.backend.entity.User;
+import com.example.backend.entity.UserProfile;
+import com.example.backend.entity.Entreprise;
+import com.example.backend.entity.AdminProfile;
+
 import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.ForbiddenException;
 import com.example.backend.exception.ResourceNotFoundException;
-import com.example.backend.repository.PostLikeRepository;
-import com.example.backend.repository.PostRepository;
-import com.example.backend.repository.UserRepository;
+
+import com.example.backend.repository.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,15 +31,29 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
 
+    private final UserProfileRepository userProfileRepository;
+    private final EntrepriseRepository entrepriseRepository;
+    private final AdminProfileRepository adminProfileRepository;
+
+
     public PostServiceImpl(
             PostRepository postRepository,
             UserRepository userRepository,
-            PostLikeRepository postLikeRepository
+            PostLikeRepository postLikeRepository,
+            UserProfileRepository userProfileRepository,
+            EntrepriseRepository entrepriseRepository,
+            AdminProfileRepository adminProfileRepository
     ) {
+
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.postLikeRepository = postLikeRepository;
+
+        this.userProfileRepository = userProfileRepository;
+        this.entrepriseRepository = entrepriseRepository;
+        this.adminProfileRepository = adminProfileRepository;
     }
+
 
     // =========================================================
     // CRÉER UN POST
@@ -47,37 +65,55 @@ public class PostServiceImpl implements PostService {
             Long userId
     ) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Utilisateur introuvable"
-                        )
-                );
+        User user =
+                userRepository.findById(userId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Utilisateur introuvable"
+                                )
+                        );
 
         validatePost(request);
 
         Post post = new Post();
 
-        post.setContenu(request.getContenu());
+        post.setContenu(
+                request.getContenu()
+        );
+
         post.setAuteur(user);
+
 
         if (request.getMedias() != null) {
 
-            for (PostRequest.PostMediaRequest mediaRequest
-                    : request.getMedias()) {
+            for (
+                    PostRequest.PostMediaRequest mediaRequest
+                    : request.getMedias()
+            ) {
 
-                PostMedia media = new PostMedia();
+                PostMedia media =
+                        new PostMedia();
 
-                media.setType(mediaRequest.getType());
-                media.setUrl(mediaRequest.getUrl());
-                media.setOrdre(mediaRequest.getOrdre());
+                media.setType(
+                        mediaRequest.getType()
+                );
+
+                media.setUrl(
+                        mediaRequest.getUrl()
+                );
+
+                media.setOrdre(
+                        mediaRequest.getOrdre()
+                );
 
                 post.addMedia(media);
             }
         }
 
+
         Post savedPost =
                 postRepository.save(post);
+
 
         return toResponse(
                 savedPost,
@@ -87,7 +123,7 @@ public class PostServiceImpl implements PostService {
 
 
     // =========================================================
-    // CONSULTER UN POST
+    // TROUVER UN POST
     // =========================================================
 
     @Override
@@ -113,7 +149,7 @@ public class PostServiceImpl implements PostService {
 
 
     // =========================================================
-    // CONSULTER TOUS LES POSTS
+    // TOUS LES POSTS
     // =========================================================
 
     @Override
@@ -122,7 +158,8 @@ public class PostServiceImpl implements PostService {
             Long currentUserId
     ) {
 
-        return postRepository.findAll()
+        return postRepository
+                .findAllByOrderByCreatedAtDesc()
                 .stream()
                 .map(post ->
                         toResponse(
@@ -135,7 +172,7 @@ public class PostServiceImpl implements PostService {
 
 
     // =========================================================
-    // CONSULTER LES POSTS D'UN AUTEUR
+    // POSTS D'UN AUTEUR
     // =========================================================
 
     @Override
@@ -153,6 +190,7 @@ public class PostServiceImpl implements PostService {
                                 )
                         );
 
+
         return postRepository
                 .findByAuteurOrderByCreatedAtDesc(auteur)
                 .stream()
@@ -167,7 +205,7 @@ public class PostServiceImpl implements PostService {
 
 
     // =========================================================
-    // MODIFIER UN POST
+    // MODIFIER
     // =========================================================
 
     @Override
@@ -177,33 +215,41 @@ public class PostServiceImpl implements PostService {
             Long userId
     ) {
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Post introuvable"
-                        )
-                );
+        Post post =
+                postRepository.findById(postId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Post introuvable"
+                                )
+                        );
 
-        checkOwnership(post, userId);
+
+        checkOwnership(
+                post,
+                userId
+        );
+
 
         validatePost(request);
+
 
         post.setContenu(
                 request.getContenu()
         );
 
-        /*
-         * On supprime les anciens médias.
-         * Ils seront recréés à partir de la nouvelle requête.
-         */
+
         post.getMedias().clear();
+
 
         if (request.getMedias() != null) {
 
-            for (PostRequest.PostMediaRequest mediaRequest
-                    : request.getMedias()) {
+            for (
+                    PostRequest.PostMediaRequest mediaRequest
+                    : request.getMedias()
+            ) {
 
-                PostMedia media = new PostMedia();
+                PostMedia media =
+                        new PostMedia();
 
                 media.setType(
                         mediaRequest.getType()
@@ -221,6 +267,7 @@ public class PostServiceImpl implements PostService {
             }
         }
 
+
         return toResponse(
                 post,
                 userId
@@ -229,7 +276,7 @@ public class PostServiceImpl implements PostService {
 
 
     // =========================================================
-    // SUPPRIMER UN POST
+    // SUPPRIMER
     // =========================================================
 
     @Override
@@ -238,21 +285,27 @@ public class PostServiceImpl implements PostService {
             Long userId
     ) {
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Post introuvable"
-                        )
-                );
+        Post post =
+                postRepository.findById(postId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Post introuvable"
+                                )
+                        );
 
-        checkOwnership(post, userId);
+
+        checkOwnership(
+                post,
+                userId
+        );
+
 
         postRepository.delete(post);
     }
 
 
     // =========================================================
-    // VÉRIFIER QUE LE POST APPARTIENT À L'UTILISATEUR
+    // OWNERSHIP
     // =========================================================
 
     private void checkOwnership(
@@ -260,9 +313,11 @@ public class PostServiceImpl implements PostService {
             Long userId
     ) {
 
-        if (!post.getAuteur()
-                .getId()
-                .equals(userId)) {
+        if (
+                !post.getAuteur()
+                        .getId()
+                        .equals(userId)
+        ) {
 
             throw new ForbiddenException(
                     "Vous ne pouvez modifier ou supprimer que vos propres posts"
@@ -272,7 +327,7 @@ public class PostServiceImpl implements PostService {
 
 
     // =========================================================
-    // VALIDATION MÉTIER DU POST
+    // VALIDATION
     // =========================================================
 
     private void validatePost(
@@ -285,16 +340,13 @@ public class PostServiceImpl implements PostService {
                         .trim()
                         .isEmpty();
 
+
         boolean hasMedia =
                 request.getMedias() != null
-                        && !request.getMedias().isEmpty();
+                        && !request.getMedias()
+                        .isEmpty();
 
-        /*
-         * Un post doit contenir au minimum :
-         * - du texte
-         * OU
-         * - au moins un média
-         */
+
         if (!hasContent && !hasMedia) {
 
             throw new ConflictException(
@@ -305,8 +357,10 @@ public class PostServiceImpl implements PostService {
 
         if (hasMedia) {
 
-            for (PostRequest.PostMediaRequest media
-                    : request.getMedias()) {
+            for (
+                    PostRequest.PostMediaRequest media
+                    : request.getMedias()
+            ) {
 
                 if (media.getType() == null) {
 
@@ -315,18 +369,24 @@ public class PostServiceImpl implements PostService {
                     );
                 }
 
-                if (media.getUrl() == null
-                        || media.getUrl()
-                        .trim()
-                        .isEmpty()) {
+
+                if (
+                        media.getUrl() == null
+                                || media.getUrl()
+                                .trim()
+                                .isEmpty()
+                ) {
 
                     throw new ConflictException(
                             "L'URL du média est obligatoire"
                     );
                 }
 
-                if (media.getOrdre() == null
-                        || media.getOrdre() < 0) {
+
+                if (
+                        media.getOrdre() == null
+                                || media.getOrdre() < 0
+                ) {
 
                     throw new ConflictException(
                             "L'ordre du média doit être supérieur ou égal à 0"
@@ -338,13 +398,17 @@ public class PostServiceImpl implements PostService {
 
 
     // =========================================================
-    // MAPPING POST → RESPONSE
+    // POST → RESPONSE
     // =========================================================
 
     private PostResponse toResponse(
             Post post,
             Long currentUserId
     ) {
+
+        // -----------------------------------------------------
+        // MEDIAS
+        // -----------------------------------------------------
 
         List<PostMediaResponse> medias =
                 post.getMedias()
@@ -360,38 +424,147 @@ public class PostServiceImpl implements PostService {
                         .toList();
 
 
+        // -----------------------------------------------------
+        // LIKES
+        // -----------------------------------------------------
+
         long likesCount =
                 postLikeRepository.countByPost(post);
 
 
-        boolean likedByMe =
-                currentUserId != null &&
-                        postLikeRepository.existsByPostAndUser(
-                                post,
-                                userRepository.getReferenceById(
-                                        currentUserId
-                                )
-                        );
+        boolean likedByMe = false;
 
 
-        User auteur = post.getAuteur();
+        if (currentUserId != null) {
 
+            User currentUser =
+                    userRepository.getReferenceById(
+                            currentUserId
+                    );
+
+
+            likedByMe =
+                    postLikeRepository
+                            .existsByPostAndUser(
+                                    post,
+                                    currentUser
+                            );
+        }
+
+
+        // -----------------------------------------------------
+        // AUTEUR
+        // -----------------------------------------------------
+
+        User auteur =
+                post.getAuteur();
+
+
+        String auteurNom = null;
+
+        String auteurPrenom = null;
+
+
+        // -----------------------------------------------------
+        // USER
+        // -----------------------------------------------------
+
+        if (auteur.getRole() == Role.USER) {
+
+            UserProfile profile =
+                    userProfileRepository
+                            .findByUser(auteur)
+                            .orElse(null);
+
+
+            if (profile != null) {
+
+                auteurNom =
+                        profile.getNom();
+
+                auteurPrenom =
+                        profile.getPrenom();
+            }
+        }
+
+
+        // -----------------------------------------------------
+        // ENTREPRISE
+        // -----------------------------------------------------
+
+        else if (
+                auteur.getRole() == Role.ENTREPRISE
+        ) {
+
+            Entreprise entreprise =
+                    entrepriseRepository
+                            .findByUser(auteur)
+                            .orElse(null);
+
+
+            if (entreprise != null) {
+
+                auteurNom =
+                        entreprise.getNomEntreprise();
+            }
+        }
+
+
+        // -----------------------------------------------------
+        // ADMIN
+        // -----------------------------------------------------
+
+        else if (
+                auteur.getRole() == Role.ADMIN
+        ) {
+
+            AdminProfile profile =
+                    adminProfileRepository
+                            .findByUser(auteur)
+                            .orElse(null);
+
+
+            if (profile != null) {
+
+                auteurNom =
+                        profile.getNom();
+
+                auteurPrenom =
+                        profile.getPrenom();
+            }
+        }
+
+
+        // -----------------------------------------------------
+        // RESPONSE
+        // -----------------------------------------------------
 
         return new PostResponse(
+
                 post.getId(),
+
                 post.getContenu(),
 
                 auteur.getId(),
+
+                auteurNom,
+
+                auteurPrenom,
+
                 auteur.getEmail(),
+
                 auteur.getTelephone(),
+
                 auteur.getRole(),
 
                 medias,
 
                 likesCount,
+
                 likedByMe,
 
                 post.getCreatedAt(),
+
                 post.getUpdatedAt()
         );
     }

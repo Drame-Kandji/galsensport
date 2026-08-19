@@ -11,7 +11,15 @@ public class PostResponse {
 
     private String contenu;
 
+    // =========================================================
+    // AUTEUR
+    // =========================================================
+
     private Long auteurId;
+
+    private String auteurNom;
+
+    private String auteurPrenom;
 
     private String auteurEmail;
 
@@ -19,11 +27,23 @@ public class PostResponse {
 
     private Role auteurRole;
 
+    // =========================================================
+    // MEDIAS
+    // =========================================================
+
     private List<PostMediaResponse> medias;
+
+    // =========================================================
+    // LIKES
+    // =========================================================
 
     private long likesCount;
 
     private boolean likedByMe;
+
+    // =========================================================
+    // DATES
+    // =========================================================
 
     private LocalDateTime createdAt;
 
@@ -37,25 +57,38 @@ public class PostResponse {
     public PostResponse(
             Long id,
             String contenu,
+
             Long auteurId,
+            String auteurNom,
+            String auteurPrenom,
             String auteurEmail,
             String auteurTelephone,
             Role auteurRole,
+
             List<PostMediaResponse> medias,
+
             long likesCount,
             boolean likedByMe,
+
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
+
         this.id = id;
         this.contenu = contenu;
+
         this.auteurId = auteurId;
+        this.auteurNom = auteurNom;
+        this.auteurPrenom = auteurPrenom;
         this.auteurEmail = auteurEmail;
         this.auteurTelephone = auteurTelephone;
         this.auteurRole = auteurRole;
+
         this.medias = medias;
+
         this.likesCount = likesCount;
         this.likedByMe = likedByMe;
+
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -71,6 +104,14 @@ public class PostResponse {
 
     public Long getAuteurId() {
         return auteurId;
+    }
+
+    public String getAuteurNom() {
+        return auteurNom;
+    }
+
+    public String getAuteurPrenom() {
+        return auteurPrenom;
     }
 
     public String getAuteurEmail() {

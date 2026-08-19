@@ -26,7 +26,8 @@ public class UserController {
      * Retourne les informations de l'utilisateur connecté.
      */
     @GetMapping("/me")
-    @PreAuthorize("hasRole('USER')")
+    //@PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponse> getMe(
             Authentication authentication
     ) {
