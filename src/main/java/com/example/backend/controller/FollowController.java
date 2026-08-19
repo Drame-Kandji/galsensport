@@ -23,6 +23,9 @@ import com.example.backend.dto.common.PagedResponse;
 import org.springframework.data.domain.PageRequest;
 import com.example.backend.repository.FollowRepository;
 import com.example.backend.repository.UserRepository;
+import com.example.backend.repository.UserProfileRepository;
+import com.example.backend.repository.SportifProfileRepository;
+import com.example.backend.repository.AdminProfileRepository;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -36,13 +39,17 @@ public class FollowController {
     private final FollowService followService;
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
+    private final UserProfileRepository userProfiles;
+    private final SportifProfileRepository sportifs;
+    private final AdminProfileRepository adminProfiles;
 
     public FollowController(
-            FollowService followService, FollowRepository followRepository, UserRepository userRepository
+            FollowService followService, FollowRepository followRepository, UserRepository userRepository, UserProfileRepository userProfiles, SportifProfileRepository sportifs, AdminProfileRepository adminProfiles
     ) {
         this.followService = followService;
         this.followRepository = followRepository;
         this.userRepository = userRepository;
+        this.userProfiles = userProfiles; this.sportifs = sportifs; this.adminProfiles = adminProfiles;
     }
 
     @GetMapping("/me/suggestions")
@@ -55,9 +62,19 @@ public class FollowController {
                 .filter(candidate -> !all.contains(candidate.getId()))
                 .skip((long) Math.max(0, page) * Math.min(Math.max(1, size), 50))
                 .limit(Math.min(Math.max(1, size), 50))
-                .map(candidate -> new UserResponse(candidate.getId(), candidate.getEmail(), candidate.getTelephone(), candidate.getRole(), null, null))
+                .map(this::toSuggestion)
                 .toList();
         return ResponseEntity.ok(new PagedResponse<>(candidates, page, size, candidates.size(), candidates.isEmpty() ? 0 : page + 1, page == 0, candidates.size() < size));
+    }
+
+    private UserResponse toSuggestion(User user) {
+        var profile = userProfiles.findByUser(user).orElse(null);
+        var admin = adminProfiles.findByUser(user).orElse(null);
+        var sportif = sportifs.findByUser(user).orElse(null);
+        String nom = profile != null ? profile.getNom() : admin != null ? admin.getNom() : "GalsenSport";
+        String prenom = profile != null ? profile.getPrenom() : admin != null ? admin.getPrenom() : "Membre";
+        return new UserResponse(user.getId(), user.getEmail(), user.getTelephone(), user.getRole(), nom, prenom,
+                profile == null ? null : profile.getBio(), sportif == null ? null : sportif.getSport(), sportif == null ? null : sportif.getPoste());
     }
 
     // =========================================================

@@ -27,6 +27,9 @@ public class UserResponse {
     private String nomEntreprise;
     private String adresse;
     private String description;
+    private String bio;
+    private String sport;
+    private String poste;
 
 
     public UserResponse() {
@@ -52,6 +55,13 @@ public class UserResponse {
         this.role = role;
         this.nom = nom;
         this.prenom = prenom;
+    }
+
+    public UserResponse(Long id, String email, String telephone, Role role, String nom, String prenom, String bio, String sport, String poste) {
+        this(id, email, telephone, role, nom, prenom);
+        this.bio = bio;
+        this.sport = sport;
+        this.poste = poste;
     }
 
 
@@ -114,4 +124,7 @@ public class UserResponse {
     public String getDescription() {
         return description;
     }
+    public String getBio() { return bio; }
+    public String getSport() { return sport; }
+    public String getPoste() { return poste; }
 }

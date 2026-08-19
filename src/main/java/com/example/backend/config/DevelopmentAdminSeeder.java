@@ -5,6 +5,8 @@ import com.example.backend.entity.Role;
 import com.example.backend.entity.User;
 import com.example.backend.repository.AdminProfileRepository;
 import com.example.backend.repository.UserRepository;
+import com.example.backend.repository.UserProfileRepository;
+import com.example.backend.entity.UserProfile;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,15 +32,16 @@ public class DevelopmentAdminSeeder {
     CommandLineRunner seedAdministrators(
             UserRepository userRepository,
             AdminProfileRepository adminProfileRepository,
+            UserProfileRepository userProfileRepository,
             PasswordEncoder passwordEncoder,
             @Value("${app.seed-admins.primary-password}") String primaryPassword,
             @Value("${app.seed-admins.secondary-password}") String secondaryPassword
     ) {
         return args -> {
-            seed(userRepository, adminProfileRepository, passwordEncoder,
+            seed(userRepository, adminProfileRepository, userProfileRepository, passwordEncoder,
                     "admin@galsensport.local", "+221770000001", primaryPassword,
                     "GalsenSport", "Administrateur");
-            seed(userRepository, adminProfileRepository, passwordEncoder,
+            seed(userRepository, adminProfileRepository, userProfileRepository, passwordEncoder,
                     "moderation@galsensport.local", "+221770000002", secondaryPassword,
                     "GalsenSport", "Modération");
         };
@@ -48,6 +51,7 @@ public class DevelopmentAdminSeeder {
     void seed(
             UserRepository users,
             AdminProfileRepository profiles,
+            UserProfileRepository userProfiles,
             PasswordEncoder encoder,
             String email,
             String telephone,
@@ -63,6 +67,7 @@ public class DevelopmentAdminSeeder {
         user.setEmailVerified(true);
         User savedUser = users.save(user);
         profiles.save(new AdminProfile(nom, prenom, savedUser));
+        userProfiles.save(new UserProfile(savedUser, nom, prenom));
         LOGGER.info("Compte administrateur de développement créé : {}", email);
     }
 }
