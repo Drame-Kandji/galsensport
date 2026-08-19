@@ -17,4 +17,6 @@ public interface PostRepository
     Page<Post> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
     long countByAuteur(User auteur);
+
+    List<Post> findTop10ByContenuContainingIgnoreCaseOrderByCreatedAtDesc(String query);
 }
