@@ -2,6 +2,7 @@ package com.example.backend.service.post;
 
 import com.example.backend.dto.post.PostRequest;
 import com.example.backend.dto.post.PostResponse;
+import com.example.backend.dto.common.PagedResponse;
 
 import java.util.List;
 
@@ -20,6 +21,8 @@ public interface PostService {
     List<PostResponse> findAll(
             Long currentUserId
     );
+
+    PagedResponse<PostResponse> findPage(Long currentUserId, int page, int size);
 
     List<PostResponse> findByAuteur(
             Long userId,

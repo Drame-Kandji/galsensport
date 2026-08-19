@@ -20,6 +20,7 @@ import com.example.backend.repository.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -171,6 +172,14 @@ public class PostServiceImpl implements PostService {
                         )
                 )
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public com.example.backend.dto.common.PagedResponse<PostResponse> findPage(Long currentUserId, int page, int size) {
+        return com.example.backend.dto.common.PagedResponse.from(
+                postRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(Math.max(0, page), Math.min(Math.max(1, size), 50))),
+                post -> toResponse(post, currentUserId));
     }
 
 

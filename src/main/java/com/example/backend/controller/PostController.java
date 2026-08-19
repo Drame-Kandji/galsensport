@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.example.backend.dto.common.PagedResponse;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -75,6 +76,14 @@ public class PostController {
                         user.getId()
                 )
         );
+    }
+
+    /** Liste paginée à utiliser par le feed et les écrans à défilement infini. */
+    @GetMapping("/page")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<PagedResponse<PostResponse>> findPage(Authentication authentication, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(postService.findPage(user.getId(), page, size));
     }
 
 
