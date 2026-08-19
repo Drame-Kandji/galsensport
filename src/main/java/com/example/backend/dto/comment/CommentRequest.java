@@ -12,6 +12,9 @@ public class CommentRequest {
     )
     private String contenu;
 
+    /** Identifiant facultatif du commentaire auquel on répond. */
+    private Long parentId;
+
 
     public CommentRequest() {
     }
@@ -23,5 +26,13 @@ public class CommentRequest {
 
     public void setContenu(String contenu) {
         this.contenu = contenu;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 }

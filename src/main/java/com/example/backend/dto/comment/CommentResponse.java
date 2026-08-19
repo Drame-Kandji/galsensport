@@ -20,6 +20,10 @@ public class CommentResponse {
 
     private Long postId;
 
+    private Long parentId;
+
+    private long repliesCount;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
@@ -37,6 +41,8 @@ public class CommentResponse {
             String auteurTelephone,
             Role auteurRole,
             Long postId,
+            Long parentId,
+            long repliesCount,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
@@ -47,6 +53,8 @@ public class CommentResponse {
         this.auteurTelephone = auteurTelephone;
         this.auteurRole = auteurRole;
         this.postId = postId;
+        this.parentId = parentId;
+        this.repliesCount = repliesCount;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -78,6 +86,14 @@ public class CommentResponse {
 
     public Long getPostId() {
         return postId;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public long getRepliesCount() {
+        return repliesCount;
     }
 
     public LocalDateTime getCreatedAt() {

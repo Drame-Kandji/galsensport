@@ -2,6 +2,7 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.comment.CommentRequest;
 import com.example.backend.dto.comment.CommentResponse;
+import com.example.backend.dto.common.PagedResponse;
 import com.example.backend.entity.User;
 import com.example.backend.service.comment.CommentService;
 
@@ -14,8 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -68,12 +67,31 @@ public class CommentController {
 
     @GetMapping("/posts/{postId}/comments")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<CommentResponse>> findByPost(
-            @PathVariable Long postId
+    public ResponseEntity<PagedResponse<CommentResponse>> findByPost(
+            @PathVariable Long postId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
 
         return ResponseEntity.ok(
-                commentService.findByPost(postId)
+                commentService.findByPost(postId, page, size)
+        );
+    }
+
+
+    // =========================================================
+    // LISTER LES RÉPONSES D'UN COMMENTAIRE
+    // =========================================================
+
+    @GetMapping("/comments/{commentId}/replies")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<PagedResponse<CommentResponse>> findReplies(
+            @PathVariable Long commentId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(
+                commentService.findReplies(commentId, page, size)
         );
     }
 

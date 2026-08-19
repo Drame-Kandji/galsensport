@@ -32,6 +32,14 @@ public class Comment {
     )
     private Post post;
 
+    /**
+     * Une réponse pointe vers son commentaire racine. Les commentaires racines
+     * conservent cette valeur à null, ce qui simplifie la pagination du fil.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Comment parent;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
@@ -102,6 +110,15 @@ public class Comment {
 
     public void setPost(Post post) {
         this.post = post;
+    }
+
+
+    public Comment getParent() {
+        return parent;
+    }
+
+    public void setParent(Comment parent) {
+        this.parent = parent;
     }
 
 

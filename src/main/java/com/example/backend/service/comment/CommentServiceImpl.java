@@ -2,6 +2,7 @@ package com.example.backend.service.comment;
 
 import com.example.backend.dto.comment.CommentRequest;
 import com.example.backend.dto.comment.CommentResponse;
+import com.example.backend.dto.common.PagedResponse;
 import com.example.backend.entity.Comment;
 import com.example.backend.entity.Post;
 import com.example.backend.entity.User;
@@ -13,8 +14,8 @@ import com.example.backend.repository.UserRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @Transactional
@@ -73,6 +74,17 @@ public class CommentServiceImpl
                         post
                 );
 
+        if (request.getParentId() != null) {
+            Comment parent = commentRepository.findById(request.getParentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Commentaire parent introuvable"));
+
+            // Une réponse reste dans le même post et n'est imbriquée qu'un niveau.
+            if (!parent.getPost().getId().equals(postId) || parent.getParent() != null) {
+                throw new ForbiddenException("Réponse de commentaire invalide");
+            }
+            comment.setParent(parent);
+        }
+
 
         Comment saved =
                 commentRepository.save(comment);
@@ -111,8 +123,10 @@ public class CommentServiceImpl
 
     @Override
     @Transactional(readOnly = true)
-    public List<CommentResponse> findByPost(
-            Long postId
+    public PagedResponse<CommentResponse> findByPost(
+            Long postId,
+            int page,
+            int size
     ) {
 
         Post post =
@@ -124,11 +138,30 @@ public class CommentServiceImpl
                         );
 
 
-        return commentRepository
-                .findByPostOrderByCreatedAtDesc(post)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        return PagedResponse.from(
+                commentRepository.findByPostAndParentIsNullOrderByCreatedAtDesc(
+                        post,
+                        pageRequest(page, size)
+                ),
+                this::toResponse
+        );
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public PagedResponse<CommentResponse> findReplies(
+            Long commentId,
+            int page,
+            int size
+    ) {
+        Comment parent = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Commentaire introuvable"));
+
+        return PagedResponse.from(
+                commentRepository.findByParentOrderByCreatedAtAsc(parent, pageRequest(page, size)),
+                this::toResponse
+        );
     }
 
 
@@ -271,8 +304,15 @@ public class CommentServiceImpl
                 auteur.getTelephone(),
                 auteur.getRole(),
                 post.getId(),
+                comment.getParent() == null ? null : comment.getParent().getId(),
+                commentRepository.countByParent(comment),
                 comment.getCreatedAt(),
                 comment.getUpdatedAt()
         );
+    }
+
+    private Pageable pageRequest(int page, int size) {
+        // La borne protège la base d'une page trop volumineuse envoyée par le client.
+        return PageRequest.of(Math.max(0, page), Math.min(Math.max(1, size), 50));
     }
 }

@@ -2,6 +2,7 @@ package com.example.backend.service.comment;
 
 import com.example.backend.dto.comment.CommentRequest;
 import com.example.backend.dto.comment.CommentResponse;
+import com.example.backend.dto.common.PagedResponse;
 
 import java.util.List;
 
@@ -20,8 +21,17 @@ public interface CommentService {
     );
 
     // Lister les commentaires d'un post
-    List<CommentResponse> findByPost(
-            Long postId
+    PagedResponse<CommentResponse> findByPost(
+            Long postId,
+            int page,
+            int size
+    );
+
+    // Lister les réponses d'un commentaire racine.
+    PagedResponse<CommentResponse> findReplies(
+            Long commentId,
+            int page,
+            int size
     );
 
     // Modifier son commentaire
