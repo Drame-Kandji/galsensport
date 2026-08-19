@@ -30,6 +30,7 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
+    private final RepostRepository repostRepository;
 
     private final UserProfileRepository userProfileRepository;
     private final EntrepriseRepository entrepriseRepository;
@@ -40,6 +41,7 @@ public class PostServiceImpl implements PostService {
             PostRepository postRepository,
             UserRepository userRepository,
             PostLikeRepository postLikeRepository,
+            RepostRepository repostRepository,
             UserProfileRepository userProfileRepository,
             EntrepriseRepository entrepriseRepository,
             AdminProfileRepository adminProfileRepository
@@ -48,6 +50,7 @@ public class PostServiceImpl implements PostService {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.postLikeRepository = postLikeRepository;
+        this.repostRepository = repostRepository;
 
         this.userProfileRepository = userProfileRepository;
         this.entrepriseRepository = entrepriseRepository;
@@ -433,6 +436,7 @@ public class PostServiceImpl implements PostService {
 
 
         boolean likedByMe = false;
+        boolean repostedByMe = false;
 
 
         if (currentUserId != null) {
@@ -449,7 +453,11 @@ public class PostServiceImpl implements PostService {
                                     post,
                                     currentUser
                             );
+
+            repostedByMe = repostRepository.existsByPostAndUser(post, currentUser);
         }
+
+        long repostsCount = repostRepository.countByPost(post);
 
 
         // -----------------------------------------------------
@@ -562,6 +570,10 @@ public class PostServiceImpl implements PostService {
                 likesCount,
 
                 likedByMe,
+
+                repostsCount,
+
+                repostedByMe,
 
                 post.getCreatedAt(),
 

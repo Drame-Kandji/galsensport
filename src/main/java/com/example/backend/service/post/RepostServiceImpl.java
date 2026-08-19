@@ -3,6 +3,7 @@ package com.example.backend.service.post;
 import com.example.backend.entity.Post;
 import com.example.backend.entity.Repost;
 import com.example.backend.entity.User;
+import com.example.backend.dto.repost.RepostResponse;
 import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.PostRepository;
@@ -38,7 +39,7 @@ public class RepostServiceImpl
     // =========================================================
 
     @Override
-    public void repost(
+    public RepostResponse repost(
             Long postId,
             Long userId
     ) {
@@ -80,6 +81,12 @@ public class RepostServiceImpl
 
 
         repostRepository.save(repost);
+
+        return new RepostResponse(
+                post.getId(),
+                true,
+                repostRepository.countByPost(post)
+        );
     }
 
 
@@ -88,7 +95,7 @@ public class RepostServiceImpl
     // =========================================================
 
     @Override
-    public void unrepost(
+    public RepostResponse unrepost(
             Long postId,
             Long userId
     ) {
@@ -125,6 +132,14 @@ public class RepostServiceImpl
         repostRepository.deleteByPostAndUser(
                 post,
                 user
+        );
+
+        // flush() rend le compteur exact avant de construire la réponse HTTP.
+        repostRepository.flush();
+        return new RepostResponse(
+                post.getId(),
+                false,
+                repostRepository.countByPost(post)
         );
     }
 

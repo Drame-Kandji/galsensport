@@ -42,6 +42,14 @@ public class PostResponse {
     private boolean likedByMe;
 
     // =========================================================
+    // REPOSTS
+    // =========================================================
+
+    private long repostsCount;
+
+    private boolean repostedByMe;
+
+    // =========================================================
     // DATES
     // =========================================================
 
@@ -70,6 +78,9 @@ public class PostResponse {
             long likesCount,
             boolean likedByMe,
 
+            long repostsCount,
+            boolean repostedByMe,
+
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
@@ -88,6 +99,9 @@ public class PostResponse {
 
         this.likesCount = likesCount;
         this.likedByMe = likedByMe;
+
+        this.repostsCount = repostsCount;
+        this.repostedByMe = repostedByMe;
 
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -136,6 +150,14 @@ public class PostResponse {
 
     public boolean isLikedByMe() {
         return likedByMe;
+    }
+
+    public long getRepostsCount() {
+        return repostsCount;
+    }
+
+    public boolean isRepostedByMe() {
+        return repostedByMe;
     }
 
     public LocalDateTime getCreatedAt() {

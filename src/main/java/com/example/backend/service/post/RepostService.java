@@ -1,13 +1,15 @@
 package com.example.backend.service.post;
 
+import com.example.backend.dto.repost.RepostResponse;
+
 public interface RepostService {
 
-    void repost(
+    RepostResponse repost(
             Long postId,
             Long userId
     );
 
-    void unrepost(
+    RepostResponse unrepost(
             Long postId,
             Long userId
     );

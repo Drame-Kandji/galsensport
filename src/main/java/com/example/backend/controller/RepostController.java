@@ -1,12 +1,19 @@
 package com.example.backend.controller;
 
 import com.example.backend.service.post.RepostService;
+import com.example.backend.dto.repost.RepostResponse;
+import com.example.backend.entity.User;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/api/v1/posts")
+@SecurityRequirement(name = "bearerAuth")
 public class RepostController {
 
     private final RepostService repostService;
@@ -23,17 +30,13 @@ public class RepostController {
     // =========================================================
 
     @PostMapping("/{postId}/repost")
-    public ResponseEntity<Void> repost(
+    @PreAuthorize("hasAnyRole('USER', 'ENTREPRISE')")
+    public ResponseEntity<RepostResponse> repost(
             @PathVariable Long postId,
-            @RequestParam Long userId
+            Authentication authentication
     ) {
-
-        repostService.repost(
-                postId,
-                userId
-        );
-
-        return ResponseEntity.ok().build();
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(repostService.repost(postId, user.getId()));
     }
 
 
@@ -42,17 +45,13 @@ public class RepostController {
     // =========================================================
 
     @DeleteMapping("/{postId}/repost")
-    public ResponseEntity<Void> unrepost(
+    @PreAuthorize("hasAnyRole('USER', 'ENTREPRISE')")
+    public ResponseEntity<RepostResponse> unrepost(
             @PathVariable Long postId,
-            @RequestParam Long userId
+            Authentication authentication
     ) {
-
-        repostService.unrepost(
-                postId,
-                userId
-        );
-
-        return ResponseEntity.noContent().build();
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(repostService.unrepost(postId, user.getId()));
     }
 
 
@@ -61,6 +60,7 @@ public class RepostController {
     // =========================================================
 
     @GetMapping("/{postId}/reposts/count")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Long> countReposts(
             @PathVariable Long postId
     ) {
@@ -77,15 +77,16 @@ public class RepostController {
     // =========================================================
 
     @GetMapping("/{postId}/repost/status")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Boolean> hasReposted(
             @PathVariable Long postId,
-            @RequestParam Long userId
+            Authentication authentication
     ) {
-
+        User user = (User) authentication.getPrincipal();
         boolean hasReposted =
                 repostService.hasReposted(
                         postId,
-                        userId
+                        user.getId()
                 );
 
         return ResponseEntity.ok(hasReposted);
