@@ -7,6 +7,8 @@ import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.FollowRepository;
 import com.example.backend.repository.UserRepository;
+import com.example.backend.service.notification.NotificationService;
+import com.example.backend.entity.NotificationType;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,13 +21,15 @@ public class FollowServiceImpl implements FollowService {
 
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
+    private final NotificationService notifications;
 
     public FollowServiceImpl(
             FollowRepository followRepository,
-            UserRepository userRepository
+            UserRepository userRepository, NotificationService notifications
     ) {
         this.followRepository = followRepository;
         this.userRepository = userRepository;
+        this.notifications = notifications;
     }
 
     // =========================================================
@@ -75,6 +79,7 @@ public class FollowServiceImpl implements FollowService {
         );
 
         followRepository.save(follow);
+        notifications.notify(following, follower, NotificationType.FOLLOW, following.getId(), follower.getEmail() + " vous suit.");
     }
 
     // =========================================================

@@ -10,5 +10,6 @@ public class Notification {
  private Long resourceId; @Column(nullable=false) private String message; private LocalDateTime readAt;
  @Column(nullable=false) private LocalDateTime createdAt;
  @PrePersist void created(){createdAt=LocalDateTime.now();}
+ public Notification(){} public Notification(User recipient,User actor,NotificationType type,Long resourceId,String message){this.recipient=recipient;this.actor=actor;this.type=type;this.resourceId=resourceId;this.message=message;}
  public Long getId(){return id;} public User getRecipient(){return recipient;} public User getActor(){return actor;} public NotificationType getType(){return type;} public Long getResourceId(){return resourceId;} public String getMessage(){return message;} public LocalDateTime getReadAt(){return readAt;} public LocalDateTime getCreatedAt(){return createdAt;} public void setReadAt(LocalDateTime value){readAt=value;}
 }
