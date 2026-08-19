@@ -161,6 +161,10 @@ public class UserServiceImpl implements UserService {
             );
         }
 
+        if (!user.isEnabled()) {
+            throw new InvalidCredentialsException("Ce compte est désactivé");
+        }
+
         if (!passwordEncoder.matches(
                 password,
                 user.getPassword()
@@ -274,13 +278,13 @@ public class UserServiceImpl implements UserService {
     public User createCompany(RegisterCompanyRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException(
+            throw new ConflictException(
                     "Cette adresse email est déjà utilisée"
             );
         }
 
         if (userRepository.existsByTelephone(request.getTelephone())) {
-            throw new RuntimeException(
+            throw new ConflictException(
                     "Ce numéro de téléphone est déjà utilisé"
             );
         }
@@ -322,5 +326,20 @@ public class UserServiceImpl implements UserService {
         entrepriseRepository.save(entreprise);
 
         return savedUser;
+    }
+
+    @Override
+    public void changePassword(User user, String currentPassword, String newPassword) {
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new InvalidCredentialsException("Le mot de passe actuel est incorrect");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Override
+    public void resetPassword(User user, String newPassword) {
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 }

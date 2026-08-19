@@ -18,4 +18,8 @@ public interface UserService {
     User login(String login, String password);
 
     UserResponse getCurrentUserResponse(Long userId);
+
+    void changePassword(User user, String currentPassword, String newPassword);
+
+    void resetPassword(User user, String newPassword);
 }

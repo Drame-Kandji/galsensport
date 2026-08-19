@@ -2,6 +2,8 @@ package com.example.backend.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "user_profiles")
 public class UserProfile {
@@ -23,6 +25,21 @@ public class UserProfile {
 
     @Column(nullable = false)
     private String prenom;
+
+    @Column(length = 2000)
+    private String bio;
+
+    @Column(length = 120)
+    private String ville;
+
+    @Column(name = "date_naissance")
+    private LocalDate dateNaissance;
+
+    @Column(name = "avatar_url", length = 1000)
+    private String avatarUrl;
+
+    @Column(name = "cover_url", length = 1000)
+    private String coverUrl;
 
     public UserProfile() {
     }
@@ -64,4 +81,15 @@ public class UserProfile {
     public void setPrenom(String prenom) {
         this.prenom = prenom;
     }
+
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
+    public String getVille() { return ville; }
+    public void setVille(String ville) { this.ville = ville; }
+    public LocalDate getDateNaissance() { return dateNaissance; }
+    public void setDateNaissance(LocalDate dateNaissance) { this.dateNaissance = dateNaissance; }
+    public String getAvatarUrl() { return avatarUrl; }
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
+    public String getCoverUrl() { return coverUrl; }
+    public void setCoverUrl(String coverUrl) { this.coverUrl = coverUrl; }
 }

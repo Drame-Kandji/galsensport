@@ -77,7 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             User user =
                     userService.findByEmail(email);
 
-            if (user != null) {
+            if (user != null && user.isEnabled()) {
 
                 SimpleGrantedAuthority authority =
                         new SimpleGrantedAuthority(

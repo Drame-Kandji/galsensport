@@ -53,6 +53,26 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+        <!-- E-mails transactionnels : vérification et réinitialisation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <!-- Stockage S3 compatible (MinIO en développement) -->
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.6.0</version>
+        </dependency>
+
+        <!-- Le SDK MinIO 8.6 s'appuie sur le variant JVM d'OkHttp 5. -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp-jvm</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+
 
         <!-- PostgreSQL -->
         <dependency>

@@ -5,12 +5,51 @@ services:
     restart: always
     environment:
       POSTGRES_DB: galsensport
-      POSTGRES_USER: galsensport
-      POSTGRES_PASSWORD: galsensport
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  minio:
+    image: minio/minio:latest
+    container_name: galsensport-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-galsensport}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-galsensport-dev-secret}
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: galsensport-minio-init
+    depends_on:
+      - minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-galsensport}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-galsensport-dev-secret}
+      MINIO_BUCKET: ${MINIO_BUCKET:-galsensport-media}
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD; do sleep 1; done;
+      mc mb --ignore-existing local/$$MINIO_BUCKET;
+      mc anonymous set download local/$$MINIO_BUCKET;
+      "
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: galsensport-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
 volumes:
   postgres_data:
+  minio_data:

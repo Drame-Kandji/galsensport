@@ -46,4 +46,9 @@ public class JwtServiceImpl implements JwtService {
                 .signWith(secretKey)
                 .compact();
     }
+
+    @Override
+    public long getExpirationInSeconds() {
+        return expiration / 1000;
+    }
 }

@@ -93,8 +93,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/uploads/**"
+                                "/v3/api-docs/**"
                         )
                         .permitAll()
 
@@ -106,7 +105,12 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/register",
-                                "/api/v1/auth/register/company"
+                                "/api/v1/auth/register/company",
+                                "/api/v1/auth/refresh",
+                                "/api/v1/auth/logout",
+                                "/api/v1/auth/password/forgot",
+                                "/api/v1/auth/password/reset",
+                                "/api/v1/auth/email/verify"
                         )
                         .permitAll()
 

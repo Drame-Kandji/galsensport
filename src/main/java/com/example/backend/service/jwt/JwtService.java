@@ -6,4 +6,6 @@ public interface JwtService {
 
     String generateToken(User user);
 
+    long getExpirationInSeconds();
+
 }

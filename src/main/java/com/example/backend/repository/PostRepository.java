@@ -12,4 +12,6 @@ public interface PostRepository
 
     List<Post> findByAuteurOrderByCreatedAtDesc(User auteur);
     List<Post> findAllByOrderByCreatedAtDesc();
+
+    long countByAuteur(User auteur);
 }

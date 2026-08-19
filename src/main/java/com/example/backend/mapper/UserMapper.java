@@ -3,6 +3,7 @@ package com.example.backend.mapper;
 import com.example.backend.dto.auth.AuthResponse;
 import com.example.backend.dto.user.UserResponse;
 import com.example.backend.entity.User;
+import com.example.backend.service.auth.AuthenticationTokenService;
 
 import org.springframework.stereotype.Component;
 
@@ -33,14 +34,16 @@ public class UserMapper {
 
     public AuthResponse toAuthResponse(
             User user,
-            String token
+            AuthenticationTokenService.SessionTokens tokens
     ) {
 
         UserResponse userResponse =
                 toUserResponse(user);
 
         return new AuthResponse(
-                token,
+                tokens.accessToken(),
+                tokens.refreshToken(),
+                tokens.expiresIn(),
                 userResponse
         );
     }
